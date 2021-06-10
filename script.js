@@ -2,10 +2,10 @@
 
 const canvas = document.querySelector('#canvas');
 const ctx = canvas.getContext('2d');
-// canvas.width = 1280;
-// canvas.height = 800;
-canvas.width = 1024;
-canvas.height = 640;
+canvas.width = 1280;
+canvas.height = 800;
+// canvas.width = 1024;
+// canvas.height = 640;
 // canvas.width = window.innerWidth;
 // canvas.height = window.innerHeight;
 
@@ -44,18 +44,26 @@ const planeRight = new Image();
 planeRight.src = 'img/plane_1_right.png';
 const feather = new Image();
 feather.src = 'img/bird_die.png';
+const parachute = new Image();
+parachute.src = 'img/pink_blue.png';
 const mountains = new Image();
 mountains.src = 'img/mountains.png';
 const sun = new Image();
 sun.src = 'img/sun.png';
+// const rest = new Image()
+// rest.src ='img/res.png'
 
 
 
-const popAudio = new Audio();
-popAudio.src = 'pop.wav';
+const popAudio1 = new Audio();
+popAudio1.src = 'sounds/pop1.wav';
+const popAudio2 = new Audio();
+popAudio2.src = 'sounds/pop2.wav';
+const crowAudio = new Audio();
+crowAudio.src = 'sounds/crow.wav';
 
 // const popAudio = document.createElement('audio');
-// popAudio.src = 'pop2.wav';
+// popAudio.src = 'pop1.wav';
 
 //облака
 class Cloud {
@@ -89,10 +97,13 @@ let clouds2 = new Cloud('img/clouds2.png', 0, canvas.width, 0, canvas.width, can
 
 //самолет
 class Plane {
-    constructor(x, y, radius) {
+    constructor(x, y, radius, width, height) {
         this.x = x;
         this.y = y;
         this.radius = radius;
+        this.width = width;
+        this.height = height;
+
     }
     //обновление позиции самолета по направлению к положению мыши
     update() {
@@ -107,14 +118,14 @@ class Plane {
     }
     draw() {
         if (this.x >= mouse.x) {
-            ctx.drawImage(planeLeft, this.x - 50, this.y - 30, 100, 59);
+            ctx.drawImage(planeLeft, this.x - 50, this.y - 30, this.width, this.height);
         } else {
-            ctx.drawImage(planeRight, this.x - 50, this.y - 30, 100, 59);
+            ctx.drawImage(planeRight, this.x - 50, this.y - 30, this.width, this.height);
         }
     }
 }
 
-const plane = new Plane(0, canvas.height / 2, 40);
+const plane = new Plane(0, canvas.height / 2, 40, 100, 59);
 
 class Bird {
     constructor(x, y, radius, speed, frame, frameX, frameY, spriteWidth, spriteHeight, image) {
@@ -131,7 +142,7 @@ class Bird {
         this.image.src = image;
     }
     draw() {
-        ctx.drawImage(this.image, this.frameX * this.spriteWidth, this.frameY * this.spriteHeight, this.spriteWidth, this.spriteHeight, this.x - 45, this.y - 45, this.spriteWidth / 7, this.spriteHeight / 7);
+        ctx.drawImage(this.image, this.frameX * this.spriteWidth, this.frameY * this.spriteHeight, this.spriteWidth, this.spriteHeight, this.x - 45, this.y - 45, this.spriteWidth / 7.5, this.spriteHeight / 7.5);
     }
     update() {
         this.x -= this.speed;
@@ -143,7 +154,9 @@ class Bird {
         }
         if (gameFrame % 5 == 0) {
             this.frame++;
-            if (this.frame >= 8) this.frame = 0;
+            if (this.frame >= 8) {
+                this.frame = 0;
+            }
             this.frame == 3 || this.frame == 7 ? this.frameX = 0 : this.frameX++;
             if (this.frame < 3) {
                 this.frameY = 0
@@ -163,26 +176,119 @@ class Bird {
     }
 }
 
-const bird = new Bird(canvas.width + 600, Math.random() * (canvas.height - 200) + 100, 30, Math.random() + 1.3, 0, 0, 0, 663, 637, 'img/black_birds.png');
+const bird = new Bird(canvas.width + 600, Math.random() * (canvas.height - 200) + 100, 25, Math.random() + 1.3, 0, 0, 0, 663, 637, 'img/black_birds.png');
+// const bird1 = new Bird(-20, Math.random() * (canvas.height - 200) + 100, 25, -(Math.random() + 1.35), 0, 0, 0, 663, 637, 'img/black_birds_right.png');
+
+const bird1 = new Bird(canvas.width + 10, Math.random() * (canvas.height - 200), 25, Math.random() + 1, 0, 0, 0, 663, 637, 'img/black_birds.png');
 
 function handleBirds() {
     bird.update();
     bird.draw();
+    if (score > 100) {
+        bird1.draw()
+        bird1.update();
+
+    }
 }
 
+class Animal {
+    constructor(x, y, frame, frameX, frameY, image) {
+        this.x = x;
+        this.y = y;
+        this.frame = frame;
+        this.frameX = frameX;
+        this.frameY = frameY;
+        this.spriteWidth = 128;
+        this.spriteHeight = 128;
+        this.image = new Image();
+        this.image.src = image;
+    }
+    draw() {
+        ctx.drawImage(this.image, this.frameX * this.spriteWidth, this.frameY * this.spriteHeight, this.spriteWidth, this.spriteHeight,
+            this.x, this.y, this.spriteWidth / 2.5, this.spriteHeight / 2.5);
+    }
+    update(frequency) {
 
+        if (gameFrame % frequency == 0) {
+            this.frame++;
+            if (this.frame >= 4) {
+                this.frame = 0;
+            }
+            this.frame == 3 ? this.frameX = 0 : this.frameX++;
+        }
+    }
+}
+
+const sheep1 = new Animal(canvas.width * 0.65, canvas.height * 0.925, 0, 0, 0, 'img/sheep_eat.png');
+const sheep2 = new Animal(canvas.width * 0.7, canvas.height * 0.915, 0, 0, 1, 'img/sheep_eat.png');
+const sheep3 = new Animal(canvas.width * 0.63, canvas.height * 0.915, 0, 0, 2, 'img/sheep_eat.png');
+const cow1 = new Animal(canvas.width * 0.12, canvas.height * 0.9, 0, 0, 3, 'img/cow_eat.png');
+
+
+function handleSheep() {
+    sheep1.update(80);
+    sheep1.draw();
+    sheep2.update(100);
+    sheep2.draw();
+    sheep3.update(110);
+    sheep3.draw();
+    cow1.update(105);
+    cow1.draw();
+}
+
+class Horse {
+    constructor(x, y, frameX) {
+        this.x = x;
+        this.y = y;
+        this.speed = Math.random() * 0.8 + 0.4;
+        this.frameX = frameX;
+        this.spriteWidth = 60;
+        this.spriteHeight = 33;
+        this.image = new Image();
+        this.image.src = 'img/Horse_Run.png';
+    }
+    draw() {
+        ctx.drawImage(this.image, this.frameX * this.spriteWidth, 1, this.spriteWidth, this.spriteHeight,
+            this.x, this.y, this.spriteWidth / 2, this.spriteHeight / 2);
+    }
+    update() {
+        this.x -= this.speed;
+        if (this.x < 0) {
+            this.x = canvas.width + 200;
+            this.speed = Math.random() * 0.8 + 0.35;
+        }
+        //    this.frequency = Math.floor(this.speed*10) +2;
+        if (gameFrame % 12 == 0) {
+            this.frameX++;
+            if (this.frameX >= 5) {
+                this.frameX = 0;
+            }
+        }
+    }
+}
+
+const horse1 = new Horse(canvas.width + 10, canvas.height - 30, 0);
+// const horse2 = new Horse(canvas.width + 16, canvas.height - 30, 0);
+
+function handleHorse() {
+    horse1.update();
+    horse1.draw();
+    // horse2.update();
+    // horse2.draw();
+}
 
 //Шарики
 let balloonsArray = [];
-// function ballonCollision(j) {
-//     for (let j = 0; j < balloonsArray.length; j++) {
-//     let hlop = new BalloonPop('img/ballon-pop.png', balloonsArray[j].x, balloonsArray[j].y, 0, balloonsArray[j].color * 600, 500, 600);
+// function ballonCollision(arr){
+
+//     for (let i = 0; i < arr.length; i++) {
+//     let hlop = new BalloonPop('img/ballon-pop.png', arr[i].x, arr[i].y, 0, arr[i].color * 600, 500, 600);
 // hlop.update();
 // hlop.draw();
-// balloonsArray[j].y+=canvas.height;
-// balloonsArray.splice(j, 1);
-// // console.log(balloonsArray); 
-// j--;
+// arr[i].y+=canvas.height;
+// arr.splice(i, 1);
+// console.log(array); 
+// i--;
 //     }
 // }
 
@@ -197,6 +303,7 @@ class Balloon {
         this.color = Math.floor(Math.random() * 6);
         this.image = new Image();
         this.image.src = image;
+        
         this.spriteWidth = spriteWidth;
         this.spriteHeight = spriteHeight;
     }
@@ -213,24 +320,18 @@ class Balloon {
     }
     draw() {
         ctx.drawImage(this.image, 0, this.spriteHeight * this.color, this.spriteWidth,
-            this.spriteHeight, this.x - 40, this.y - 45, this.spriteWidth / 6, this.spriteHeight / 6)
+            this.spriteHeight, this.x - 40, this.y - 45, this.spriteWidth / 7, this.spriteHeight / 7)
     }
 }
 
 class BalloonPop extends Balloon {
     constructor(image, x, y, frameX, frameY, spriteWidth, spriteHeight) {
-        super(image, x, y, spriteWidth, spriteHeight)
+        super(image, x, y, spriteWidth, spriteHeight);
         this.frameX = frameX;
         this.frameY = frameY;
-        this.speed = 1; //Math.random() * 0.4 -0.4;
-
-    }
-    update() {
-        // this.y += 50;
-        this.frameX++;
     }
     draw() {
-        ctx.drawImage(this.image, this.frameX * this.spriteWidth, this.frameY, this.spriteWidth, this.spriteHeight, this.x - 40, this.y - 45, this.spriteWidth / 6, this.spriteHeight / 6)
+        ctx.drawImage(this.image, this.frameX * this.spriteWidth, this.frameY, this.spriteWidth, this.spriteHeight, this.x - 40, this.y - 45, this.spriteWidth / 7, this.spriteHeight / 7)
     }
 }
 
@@ -252,20 +353,20 @@ function handleBalloons() {
             if (!balloonsArray[i].counted) {
                 score++;
                 balloonsArray[i].counted = true;
-                // popAudio.play();                
+
             }
-            // ballonCollision(i);
-            let hlop = new BalloonPop('img/ballon-pop.png', balloonsArray[i].x, balloonsArray[i].y, 0, balloonsArray[i].color * 600, 500, 600);
+            let hlop = new BalloonPop('img/ballon-pop.png', balloonsArray[i].x, balloonsArray[i].y, 1, balloonsArray[i].color * 600, 500, 600);
+            popAudio1.play();
             hlop.update();
             hlop.draw();
-
+            balloonsArray[i].y += canvas.height * 2;
             balloonsArray.splice(i, 1);
             i--;
         } else if (balloonsArray[i].birdDistance < balloonsArray[i].radius + bird.radius && balloonsArray[i].x <= bird.x - bird.radius) {
             let hlop1 = new BalloonPop('img/ballon-pop.png', balloonsArray[i].x, balloonsArray[i].y, 1, balloonsArray[i].color * 600, 500, 600);
             hlop1.update();
             hlop1.draw();
-            // ballonCollision();
+            popAudio2.play();
             balloonsArray.splice(i, 1);
             i--;
         }
@@ -287,15 +388,24 @@ function drawBackground(background) {
 
 
 function handleGameOver() {
-    bird.y += canvas.height + 100;
-    ctx.drawImage(feather, 1989, 637, 663, 637, bird.x - 70, bird.y - canvas.height - 70, 100, 100);
 
+    bird.y += canvas.height + 100;
+    ctx.drawImage(feather, 1989, 637, 663, 637, bird.x - 70, bird.y - canvas.height - 70, 70, 70);
+    crowAudio.play();
+    ctx.drawImage(parachute, plane.x - 70, plane.y + 100, 60, 60);
+    plane.y = canvas.height - plane.radius / 3.5;
+    plane.width = plane.width / 2;
+    plane.height = plane.height / 2;
     ctx.font = "80px Verdana";
     ctx.fillStyle = "red";
     ctx.textAlign = "center";
-    ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 2);
-
-    gameOver = true;
+    ctx.fillText("GAME OVER", canvas.width / 2, canvas.height /2.5);
+    gameOver = true;  
+    setInterval(() => {
+        document.location.reload()
+    }, 5000);
+    
+    
 }
 
 function getScore() {
@@ -309,6 +419,8 @@ function animate() {
     clouds1.draw(0.05);
     clouds2.draw(0.1);
     drawBackground(mountains);
+    handleSheep();
+    handleHorse();
     handleBalloons();
     getScore();
     handleBirds();
@@ -320,11 +432,14 @@ function animate() {
     gameFrame++;
     if (!gameOver) {
         requestAnimationFrame(animate);
-    }
+    }  
+    
 }
 
 animate();
 
 window.addEventListener('resize', function () {
+    // canvas.height = window.innerHeight;
+    // canvas.width =window.innerWidth;
     canvasPosition = canvas.getBoundingClientRect();
 });
