@@ -9,11 +9,49 @@ canvas.height = 800;
 // canvas.width = window.innerWidth;
 // canvas.height = window.innerHeight;
 
+
+// const btnClose = document.querySelector('.modalClose');
+const popup = document.querySelector('.reloadButton');
+
+// let playerName = document.querySelector("#name");
+// let saveBtn = document.querySelector("#save");
+
+
+
+// btnClose.onclick = ()=> {
+//     popup.style.display ='none';
+// }
+
+// // playerName.value = null;
+
+
+//     function addNames() {
+//       if (!(playerName == null )) {
+//         localStorage.setItem('playerName', playerName.value);
+//         // playerName.value = null;
+
+//       }
+//     }
+
+//     saveBtn.addEventListener("click", addNames);
+
+// window.onclick = function(event) {
+//     if (event.target == popup) {
+//         popup.style.display = "none";
+//     }
+//   }
+
+// let startBtn = document.querySelector("#start");
+// startBtn.onclick =()=> {
+//     popup.style.display ='none';
+// }
+
 let score = 0;
 let gameFrame = 0;
-// let gameSpeed = 1;
+let gameSpeed = 1;
 let gameOver = false;
 
+ctx.font = '25px Verdana';
 
 //координаты относительного окна
 let canvasPosition = canvas.getBoundingClientRect();
@@ -25,18 +63,20 @@ const mouse = {
     click: false
 }
 
+
+
 canvas.addEventListener('mousedown', function (event) {
     mouse.click = true;
     mouse.x = event.x - canvasPosition.left;
     mouse.y = event.y - canvasPosition.top;
-
+    // console.log(mouse.x, mouse.y);
 });
 
 canvas.addEventListener('mouseup', function () {
     mouse.click = false;
 });
 
-//загружаем изображения
+
 const planeLeft = new Image();
 planeLeft.src = 'img/plane_1_left.png';
 const planeRight = new Image();
@@ -51,15 +91,20 @@ const sun = new Image();
 sun.src = 'img/sun.png';
 const balloon = new Image();
 balloon.src = 'img/ballon-pop.png'
+// const rest = new Image()
+// rest.src ='img/res.png'
 
 
-//загружаем звуки
+
 const popAudio1 = new Audio();
 popAudio1.src = 'sounds/pop1.wav';
 const popAudio2 = new Audio();
 popAudio2.src = 'sounds/pop2.wav';
 const crowAudio = new Audio();
 crowAudio.src = 'sounds/crow.wav';
+
+// const popAudio = document.createElement('audio');
+// popAudio.src = 'pop1.wav';
 
 //облака
 class Cloud {
@@ -73,11 +118,11 @@ class Cloud {
         this.image.src = image;
     }
     draw(k) {
-        this.x1 -= k;
+        this.x1 -= gameSpeed * k;
         if (this.x1 < -this.width) {
             this.x1 = this.width;
         }
-        this.x2 -= k;
+        this.x2 -= gameSpeed * k;
         if (this.x2 < -Cloud.width) {
             this.x2 = this.width;
         }
@@ -99,6 +144,7 @@ class Plane {
         this.radius = radius;
         this.width = width;
         this.height = height;
+
     }
     //обновление позиции самолета по направлению к положению мыши
     update() {
@@ -122,13 +168,12 @@ class Plane {
 
 const plane = new Plane(0, canvas.height / 2, 40, 100, 59);
 
-//птицы
 class Bird {
     constructor(x, y, radius, speed, frame, frameX, frameY, spriteWidth, spriteHeight, image) {
         this.x = x;
         this.y = y;
         this.radius = radius;
-        this.speed = speed;
+        this.speed = speed + Math.floor(score / 10);
         this.frame = frame;
         this.frameX = frameX;
         this.frameY = frameY;
@@ -143,22 +188,21 @@ class Bird {
     update() {
         this.x -= this.speed;
         this.y += Math.random() * 2 - 1;
-        if (this.x < 0 - this.radius * 5) {
-            this.x = canvas.width + 600;
+        if (this.x < 0 - this.radius * 2) {
+            this.x = canvas.width + 800;
             this.y = Math.random() * (canvas.height - 200) + 100;
             this.speed = Math.random() * 2 + 2;
-        }
-        if (this.x > canvas.width + 700) {
-            this.x = -100;
-            this.y = Math.random() * (canvas.height - 200) + 100;
-            this.speed = -(Math.random() * 2 + 2);
         }
         if (gameFrame % 5 == 0) {
             this.frame++;
             if (this.frame >= 8) {
                 this.frame = 0;
             }
-            this.frame == 3 || this.frame == 7 ? this.frameX = 0 : this.frameX++;
+            if (this.frame == 3 || this.frame == 7) {
+                this.frameX = 0
+            } else {
+                this.frameX++;
+            }
             if (this.frame < 3) {
                 this.frameY = 0
             } else if (this.frame < 7) {
@@ -166,47 +210,31 @@ class Bird {
             } else {
                 this.frameY = 0;
             }
+
         }
         //столкновение с самолетом :(
         const dx = this.x - plane.x;
         const dy = this.y - plane.y;
         this.distance = Math.sqrt(dx ** 2 + dy ** 2);
-
+        
     }
 }
 
-let birdsArray = [];
-// const bird = new Bird(canvas.width + 600, Math.random() * (canvas.height - 200) + 100, 25, Math.random() + 1.3, 0, 0, 0, 663, 637, 'img/black_birds.png');
-birdsArray.push(new Bird(canvas.width + 600, Math.random() * (canvas.height - 200) + 100, 25, Math.random() + 1.3, 0, 0, 0, 663, 637, 'img/black_birds.png'));
-birdsArray.push(new Bird(-100, Math.random() * (canvas.height - 200) + 100, 25, -(Math.random() + 2), 0, 0, 0, 663, 637, 'img/black_birds_right.png'));
+const bird = new Bird(canvas.width + 600, Math.random() * (canvas.height - 200) + 100, 25, Math.random() + 1.3, 0, 0, 0, 663, 637, 'img/black_birds.png');
+
 
 function handleBirds() {
-    // if ((bird.distance < bird.radius + plane.radius) && (Math.abs(bird.y - plane.y) <= 20)) {
-    //     bird.y += canvas.height + 100;
-    // ctx.drawImage(feather, 1989, 637, 663, 637, bird.x - 70, bird.y - canvas.height - 70, 70, 70);
-    // crowAudio.play();
-    // ctx.drawImage(parachute, plane.x - 70, plane.y + 100, 60, 60);
-    // plane.y = canvas.height - plane.radius / 3.5;
-    // plane.width = plane.width / 2;
-    // plane.height = plane.height / 2;
-    //     handleGameOver();
-    // }
-    // bird.update();
-    // bird.draw();
-    for (let k = 0; k < birdsArray.length; k++) {
-
-        if ((birdsArray[k].distance < birdsArray[k].radius + plane.radius)) {
-            birdsArray[k].y += canvas.height + 100;
-            ctx.drawImage(feather, 1989, 637, 663, 637, birdsArray[k].x - 70, birdsArray[k].y - canvas.height - 70, 70, 70);
-            crowAudio.play();
-            ctx.drawImage(parachute, plane.x - 70, plane.y + 100, 50, 50);
-            plane.y = canvas.height - plane.radius / 3.5;
-            plane.width = plane.width / 2;
-            plane.height = plane.height / 2;
-            handleGameOver();
-        }
-        birdsArray[k].update();
-        birdsArray[k].draw();
+    bird.update();
+    bird.draw();
+    if ((bird.distance < bird.radius + plane.radius) && (Math.abs(bird.y - plane.y) <= 20)) {
+        bird.y += canvas.height + 100;
+        ctx.drawImage(feather, 1989, 637, 663, 637, bird.x - 50, bird.y - canvas.height - 70, 70, 70);
+        crowAudio.play();
+        ctx.drawImage(parachute, plane.x - 70, plane.y, 60, 60);
+        plane.y = canvas.height - plane.radius / 3.5;
+        plane.width = plane.width / 2;
+        plane.height = plane.height / 2;
+        handleGameOver();
     }
 }
 
@@ -235,8 +263,11 @@ class Animal {
             this.frame++;
             if (this.frame >= 4) {
                 this.frame = 0;
+            } else if (this.frame == 3) {
+                this.frameX = 0
+            } else {
+                this.frameX++;
             }
-            this.frame == 3 ? this.frameX = 0 : this.frameX++;
         }
     }
 }
@@ -280,7 +311,7 @@ class Horse {
             this.speed = Math.random() * 0.8 + 0.35;
         }
         //    this.frequency = Math.floor(this.speed*10) +2;
-        if (gameFrame % 10 == 0) {
+        if (gameFrame % 12 == 0) {
             this.frameX++;
             if (this.frameX >= 5) {
                 this.frameX = 0;
@@ -309,6 +340,7 @@ class Balloon {
         this.y = y, //canvas.height + 100;
             this.radius = 25;
         this.speed = Math.random() * 4 + 1;
+        this.distance;
         this.counted = false;
         this.color = Math.floor(Math.random() * 6);
         this.image = new Image();
@@ -320,11 +352,13 @@ class Balloon {
     update() {
         this.y -= this.speed;
         //вычисление условия встречи с самолетом
-        // const dx = this.x - plane.x;
-        // const dy = this.y - plane.y;
-        // this.planeDistance = Math.sqrt(dx ** 2 + dy ** 2);
-
-
+        const dx = this.x - plane.x;
+        const dy = this.y - plane.y;
+        this.planeDistance = Math.sqrt(dx ** 2 + dy ** 2);
+        // вычисление условия встречи с птичкой    
+        const dbx = this.x - bird.x;
+        const dby = this.y - bird.y;
+        this.birdDistance = Math.sqrt(dbx ** 2 + dby ** 2);
     }
     draw() {
         ctx.drawImage(this.image, 0, this.spriteHeight * this.color, this.spriteWidth,
@@ -332,21 +366,23 @@ class Balloon {
     }
 }
 
-// class BalloonPop extends Balloon {
-//     constructor(image, x, y, frameX, frameY, spriteWidth, spriteHeight) {
-//         super(image, x, y, spriteWidth, spriteHeight);
-//         this.frameX = frameX;
-//         this.frameY = frameY;
-//     }
-//     draw() {
-//         ctx.drawImage(this.image, this.frameX * this.spriteWidth, this.frameY, this.spriteWidth, this.spriteHeight, this.x - 40, this.y - 45, this.spriteWidth / 7, this.spriteHeight / 7)
-//     }
-// }
+class BalloonPop extends Balloon {
+    constructor(image, x, y, frameX, frameY, spriteWidth, spriteHeight) {
+        super(image, x, y, spriteWidth, spriteHeight);
+        this.frameX = frameX;
+        this.frameY = frameY;
+    }
+    draw() {
+        ctx.drawImage(this.image, this.frameX * this.spriteWidth, this.frameY, this.spriteWidth, this.spriteHeight, this.x - 40, this.y - 45, this.spriteWidth / 7, this.spriteHeight / 7)
+    }
+}
 
 
 function handleBalloons() {
-    if (gameFrame % 60 == 0) { //добавление элемента каждые 60 фреймов
-        balloonsArray.push(new Balloon('img/ballon-pop.png', Math.random() * canvas.width, canvas.height + 100, 500, 600));
+    if (gameFrame % 60 == 0) { //добавление элемента каждые 50 фреймов
+        balloonsArray.push(new Balloon('img/ballon-pop.png', Math.random() * canvas.width - 50, canvas.height + 100, 500, 600));
+        // constructor(image, frameX, frameY, radius spriteWidth, spriteHeight) {
+        // 
     }
     for (let i = 0; i < balloonsArray.length; i++) {
         balloonsArray[i].update();
@@ -355,36 +391,31 @@ function handleBalloons() {
         if (balloonsArray[i].y < 0 - balloonsArray[i].radius * 2) {
             balloonsArray.splice(i, 1);
             i--;
-            // столкновение с самолетом
-        } else if (Math.sqrt((plane.x - balloonsArray[i].x) ** 2 + (plane.y - balloonsArray[i].y) ** 2) < balloonsArray[i].radius + plane.radius) {
+        } else if (balloonsArray[i].planeDistance < balloonsArray[i].radius + plane.radius) {
             if (!balloonsArray[i].counted) {
                 score++;
+                gameSpeed = 1 + Math.floor(score / 100);
                 balloonsArray[i].counted = true;
+
             }
-            ctx.drawImage(balloon, 500, balloonsArray[i].color * 600, 500, 600, balloonsArray[i].x - 40, balloonsArray[i].y - 45,
-                balloonsArray[i].spriteWidth / 7, balloonsArray[i].spriteHeight / 7);
+            let hlop = new BalloonPop('img/ballon-pop.png', balloonsArray[i].x, balloonsArray[i].y, 1, balloonsArray[i].color * 600, 500, 600);
+            popAudio1.play();
+            hlop.update();
+            hlop.draw();
             balloonsArray.splice(i, 1);
             i--;
-            popAudio1.play();
+        } else if (balloonsArray[i].birdDistance < balloonsArray[i].radius + plane.radius && Math.abs(balloonsArray[i].y - bird.y <= 20) &&
+            balloonsArray[i].x <= bird.x) {
+            let hlop1 = new BalloonPop('img/ballon-pop.png', balloonsArray[i].x, balloonsArray[i].y, 1, balloonsArray[i].color * 600, 500, 600);
+            hlop1.update();
+            hlop1.draw();
+            popAudio2.play();
+            balloonsArray.splice(i, 1);
+            i--;
         }
     }
 }
 
-function checkBirdBallonCollision() {
-    for (let k = 0; k < birdsArray.length; k++) {
-        for (let i = 0; i < balloonsArray.length; i++) {
-            if (Math.sqrt((birdsArray[k].x - balloonsArray[i].x) ** 2 + (birdsArray[k].y - balloonsArray[i].y) ** 2) <
-                birdsArray[k].radius + balloonsArray[i].radius &&
-                Math.abs(birdsArray[k].y - balloonsArray[i].y) < 15) {
-                ctx.drawImage(balloon, 500, balloonsArray[i].color * 600, 500, 600, balloonsArray[i].x - 40,
-                    balloonsArray[i].y - 45, balloonsArray[i].spriteWidth / 7, balloonsArray[i].spriteHeight / 7);
-                balloonsArray.splice(i, 1);
-                i--;
-                popAudio2.play();
-            }
-        }
-    }
-}
 
 function drawBackground(background) {
     ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
@@ -403,26 +434,28 @@ function drawBackground(background) {
 
 function handleGameOver() {
 
-
+    
     ctx.font = "80px Verdana";
     ctx.fillStyle = "red";
     ctx.textAlign = "center";
     ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 2.3);
     ctx.font = "50px Verdana";
-    ctx.fillText(`YOUR SCORE: ${score}`, canvas.width / 2, canvas.height / 1.5);
+    ctx.fillText(`Ваш счет: ${score}`, canvas.width / 2, canvas.height / 1.8);
     gameOver = true;
-    setInterval(() => {
-        document.location.reload()
-    }, 7000);
+    // setInterval(() => {
+    //     document.location.reload()
+    // }, 5000);
 }
 
-function showScore() {
-    ctx.drawImage(balloon, 0, 2400, 500, 600, canvas.width - 110, 10, 50, 60);
-    ctx.font = '25px Verdana';
+function getScore() {
+    ctx.drawImage(balloon, 0, 2400, 500, 600, canvas.width - 110, 10, 50, 60)
     ctx.fillStyle = 'black';
     ctx.fillText(` ${score}`, canvas.width - 70, 50);
-
 }
+
+
+
+
 
 
 function animate() {
@@ -434,22 +467,23 @@ function animate() {
     handleSheep();
     handleHorse();
     handleBalloons();
-    checkBirdBallonCollision();
-    showScore();
+    getScore();
     handleBirds();
     plane.update();
     plane.draw();
-    // ctx.fillStyle = 'black';
-    // ctx.fillText(`Ваш счет: ${score}`, canvas.width -300, 40);
     gameFrame++;
+
     if (!gameOver) {
         requestAnimationFrame(animate);
     }
+    else  {popup.style.display ='block';}
 
 }
 
 animate();
 
 window.addEventListener('resize', function () {
+    // canvas.height = window.innerHeight;
+    // canvas.width =window.innerWidth;
     canvasPosition = canvas.getBoundingClientRect();
 });

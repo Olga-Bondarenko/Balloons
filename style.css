@@ -11,7 +11,7 @@ body {
    display: flex;
    justify-content: center;
    align-items: center;
-   background:  linear-gradient(to right, mistyrose, pink)
+   background:  linear-gradient(to bottom right, mistyrose, pink)
 }
 
 #canvas {
