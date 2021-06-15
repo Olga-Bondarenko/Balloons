@@ -52,26 +52,67 @@ balloon.src = 'img/ballon-pop.png'
 
 //загружаем звуки
 const popAudio1 = new Audio('sounds/Balloon_popping_burst_2.mp3');
-// popAudio1.src = ;
-popAudio1.volume = 0.05;
+popAudio1.volume = 0.3;
 const popAudio2 = new Audio('sounds/Balloon_popping_burst_11.mp3');
-// popAudio2.src = 'sounds/pop2.wav';
-popAudio2.volume = 0.02;
+popAudio2.volume = 0.3;
 
 const crowAudio = new Audio();
 crowAudio.src = 'sounds/crow.wav';
 
 
+//фоновая музыка
+let BgMusic1 = document.querySelector('#music');
+let count = 0;
+const myAudio1 = new Audio();
+myAudio1.src = 'sounds/music4.mp3';
+myAudio1.loop = true;
+myAudio1.volume = 0.05;
 
-// document.querySelector('.music_on').onclick = () => {
+
+BgMusic1.addEventListener('click', function () {
+    if (count == 0) {
+        count = 1;
+        BgMusic1.innerHTML ='выключить музыку';
+        myAudio1.play();
+        
+    } else {
+        count = 0;
+        myAudio1.pause();
+        BgMusic1.innerHTML ='включить музыку';
+
+    }
+})
 
 
-//     const music = new Audio();
-//     music.src = 'sounds/music2.mp3';
-// music.play();
-//   };
+let pauseBtn = document.querySelector('#pause');
+let resumeBtn = document.querySelector('#resume');
+let newGame = document.querySelector('#new_game');
 
 
+
+let continueAnimating = true;
+pauseBtn.addEventListener('click', function () {
+    if (count == 0) {
+        count = 1;
+        continueAnimating = false;
+        pauseBtn.innerHTML ='возобновить';
+    } else {
+        count = 0;
+        continueAnimating = true;
+        animate();
+        pauseBtn.innerHTML ='пауза';
+    }
+});
+// resumeBtn.addEventListener('click', function () {
+//     continueAnimating = true;
+//     animate();
+// });
+
+newGame.addEventListener('click', function () {
+    console.log('click');
+    window.location.reload();
+
+});
 
 
 //облака
@@ -106,16 +147,16 @@ let clouds2 = new Cloud('img/clouds2.png', 0, canvas.width, 0, canvas.width, can
 
 //самолет
 class Plane {
-    constructor(x, y, radius,  frameX, spriteWidth, spriteHeight ) {
+    constructor(x, y, radius, frameX, spriteWidth, spriteHeight) {
         this.x = x;
         this.y = y;
         this.radius = radius;
-       
+
         this.frameX = frameX;
         this.spriteWidth = spriteWidth;
         this.spriteHeight = spriteHeight;
-         this.width = spriteWidth/7;
-        this.height = spriteHeight/7;
+        this.width = spriteWidth / 7;
+        this.height = spriteHeight / 7;
     }
     //обновление позиции самолета по направлению к положению мыши
     update() {
@@ -137,16 +178,16 @@ class Plane {
     }
     draw() {
         if (this.x >= mouse.x) {
-            ctx.drawImage(planeLeft,  this.frameX * this.spriteWidth, 0, this.spriteWidth, this.spriteHeight, this.x - 50, this.y - 30, this.width, this.height );
+            ctx.drawImage(planeLeft, this.frameX * this.spriteWidth, 0, this.spriteWidth, this.spriteHeight, this.x - 50, this.y - 30, this.width, this.height);
         } else {
             // ctx.drawImage(planeRight, this.x - 50, this.y - 30, this.width, this.height, 0);
-            ctx.drawImage(planeRight,  this.frameX * this.spriteWidth, 0, this.spriteWidth, this.spriteHeight, this.x - 50, this.y - 30,  this.width, this.height );
+            ctx.drawImage(planeRight, this.frameX * this.spriteWidth, 0, this.spriteWidth, this.spriteHeight, this.x - 50, this.y - 30, this.width, this.height);
         }
     }
 }
 
 
-const plane = new Plane(0, canvas.height / 2, 40, 0,867, 520);
+const plane = new Plane(0, canvas.height / 2, 40, 0, 867, 520);
 
 //птицы
 class Bird {
@@ -189,7 +230,7 @@ class Bird {
                 this.frameY = 0
             } else if (this.frame < 7) {
                 this.frameY = 1;
-            } else {  
+            } else {
                 this.frameY = 0;
             }
         }
@@ -214,10 +255,10 @@ function handleBirds() {
             ctx.drawImage(feather, 1989, 637, 663, 637, birdsArray[k].x - 70, birdsArray[k].y - canvas.height - 70, 70, 70);
             crowAudio.play();
             ctx.drawImage(parachute, plane.x - 70, plane.y + 10, 50, 50);
-            plane.y = canvas.height -15;
-            plane.width = plane.width/2;
-            plane.height = plane.height/2;
-                    handleGameOver();
+            plane.y = canvas.height - 15;
+            plane.width = plane.width / 2;
+            plane.height = plane.height / 2;
+            handleGameOver();
         }
 
         birdsArray[k].update();
@@ -226,7 +267,7 @@ function handleBirds() {
 }
 
 
-O
+
 //Шарики
 let balloonsArray = [];
 
@@ -272,25 +313,25 @@ function handleBalloons() {
             if (!balloonsArray[i].counted) {
                 score++;
                 balloonsArray[i].counted = true;
-                
+
             }
-           
+
             ctx.drawImage(balloon, 500, balloonsArray[i].color * 600, 500, 600, balloonsArray[i].x - 40, balloonsArray[i].y - 45,
                 balloonsArray[i].spriteWidth / 7, balloonsArray[i].spriteHeight / 7);
-            
-                ctx.drawImage(balloon, 1000, balloonsArray[i].color * 600, 500, 600, balloonsArray[i].x - 40, balloonsArray[i].y - 45,
-                    balloonsArray[i].spriteWidth / 7, balloonsArray[i].spriteHeight / 7);  
-             
-                
+
+            ctx.drawImage(balloon, 1000, balloonsArray[i].color * 600, 500, 600, balloonsArray[i].x - 40, balloonsArray[i].y - 45,
+                balloonsArray[i].spriteWidth / 7, balloonsArray[i].spriteHeight / 7);
+
+
             // const popHlop = new PopBalloon('img/ballon-pop.png',balloonsArray[i].x - 40, balloonsArray[i].y - 45);
             // popHlop.draw();
-           
+
             // popHlop.update();
             popAudio1.play();
             balloonsArray.splice(i, 1);
             i--;
-          
-          
+
+
         }
     }
 }
@@ -448,9 +489,7 @@ function handleGameOver() {
     ctx.font = "60px Comic Sans MS";
     ctx.fillText(`ВАШ СЧЕТ: ${score}`, canvas.width / 2, canvas.height / 1.8);
     gameOver = true;
-    setInterval(() => {
-        document.location.reload()
-    }, 7000);
+
 }
 
 function showScore() {
@@ -463,6 +502,10 @@ function showScore() {
 
 
 function animate() {
+    if (!continueAnimating) {
+        return
+    }
+
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawBackground(sun);
     clouds1.draw(0.05);
@@ -481,11 +524,14 @@ function animate() {
     // ctx.fillStyle = 'black';
     // ctx.fillText(`Ваш счет: ${score}`, canvas.width -300, 40);
     gameFrame++;
+
     if (!gameOver) {
         requestAnimationFrame(animate);
+
     }
 
 }
+
 
 animate();
 
