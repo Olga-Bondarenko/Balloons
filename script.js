@@ -4,10 +4,7 @@ const canvas = document.querySelector('#canvas');
 const ctx = canvas.getContext('2d');
 canvas.width = 1280;
 canvas.height = 800;
-// canvas.width = 1024;
-// canvas.height = 640;
-// canvas.width = window.innerWidth;
-// canvas.height = window.innerHeight;
+
 
 let score = 0;
 let gameFrame = 0;
@@ -38,9 +35,9 @@ canvas.addEventListener('mouseup', function () {
 
 //загружаем изображения
 const planeLeft = new Image();
-planeLeft.src = 'img/plane_1_left.png';
+planeLeft.src = 'img/red_plane_left.png';
 const planeRight = new Image();
-planeRight.src = 'img/plane_1_right.png';
+planeRight.src = 'img/red_plane_right.png';
 const feather = new Image();
 feather.src = 'img/bird_die.png';
 const parachute = new Image();
@@ -54,12 +51,28 @@ balloon.src = 'img/ballon-pop.png'
 
 
 //загружаем звуки
-const popAudio1 = new Audio();
-popAudio1.src = 'sounds/pop1.wav';
-const popAudio2 = new Audio();
-popAudio2.src = 'sounds/pop2.wav';
+const popAudio1 = new Audio('sounds/Balloon_popping_burst_2.mp3');
+// popAudio1.src = ;
+popAudio1.volume = 0.05;
+const popAudio2 = new Audio('sounds/Balloon_popping_burst_11.mp3');
+// popAudio2.src = 'sounds/pop2.wav';
+popAudio2.volume = 0.02;
+
 const crowAudio = new Audio();
 crowAudio.src = 'sounds/crow.wav';
+
+
+
+// document.querySelector('.music_on').onclick = () => {
+
+
+//     const music = new Audio();
+//     music.src = 'sounds/music2.mp3';
+// music.play();
+//   };
+
+
+
 
 //облака
 class Cloud {
@@ -93,12 +106,16 @@ let clouds2 = new Cloud('img/clouds2.png', 0, canvas.width, 0, canvas.width, can
 
 //самолет
 class Plane {
-    constructor(x, y, radius, width, height) {
+    constructor(x, y, radius,  frameX, spriteWidth, spriteHeight ) {
         this.x = x;
         this.y = y;
         this.radius = radius;
-        this.width = width;
-        this.height = height;
+       
+        this.frameX = frameX;
+        this.spriteWidth = spriteWidth;
+        this.spriteHeight = spriteHeight;
+         this.width = spriteWidth/7;
+        this.height = spriteHeight/7;
     }
     //обновление позиции самолета по направлению к положению мыши
     update() {
@@ -110,17 +127,26 @@ class Plane {
         if (mouse.y != this.y) {
             this.y -= dy / 20;
         }
+
+        if (gameFrame % 3 == 0) {
+            this.frameX++;
+            if (this.frameX >= 5) {
+                this.frameX = 0;
+            }
+        }
     }
     draw() {
         if (this.x >= mouse.x) {
-            ctx.drawImage(planeLeft, this.x - 50, this.y - 30, this.width, this.height);
+            ctx.drawImage(planeLeft,  this.frameX * this.spriteWidth, 0, this.spriteWidth, this.spriteHeight, this.x - 50, this.y - 30, this.width, this.height );
         } else {
-            ctx.drawImage(planeRight, this.x - 50, this.y - 30, this.width, this.height);
+            // ctx.drawImage(planeRight, this.x - 50, this.y - 30, this.width, this.height, 0);
+            ctx.drawImage(planeRight,  this.frameX * this.spriteWidth, 0, this.spriteWidth, this.spriteHeight, this.x - 50, this.y - 30,  this.width, this.height );
         }
     }
 }
 
-const plane = new Plane(0, canvas.height / 2, 40, 100, 59);
+
+const plane = new Plane(0, canvas.height / 2, 40, 0,867, 520);
 
 //птицы
 class Bird {
@@ -163,7 +189,7 @@ class Bird {
                 this.frameY = 0
             } else if (this.frame < 7) {
                 this.frameY = 1;
-            } else {
+            } else {  
                 this.frameY = 0;
             }
         }
@@ -181,38 +207,135 @@ birdsArray.push(new Bird(canvas.width + 600, Math.random() * (canvas.height - 20
 birdsArray.push(new Bird(-100, Math.random() * (canvas.height - 200) + 100, 25, -(Math.random() + 2), 0, 0, 0, 663, 637, 'img/black_birds_right.png'));
 
 function handleBirds() {
-    // if ((bird.distance < bird.radius + plane.radius) && (Math.abs(bird.y - plane.y) <= 20)) {
-    //     bird.y += canvas.height + 100;
-    // ctx.drawImage(feather, 1989, 637, 663, 637, bird.x - 70, bird.y - canvas.height - 70, 70, 70);
-    // crowAudio.play();
-    // ctx.drawImage(parachute, plane.x - 70, plane.y + 100, 60, 60);
-    // plane.y = canvas.height - plane.radius / 3.5;
-    // plane.width = plane.width / 2;
-    // plane.height = plane.height / 2;
-    //     handleGameOver();
-    // }
-    // bird.update();
-    // bird.draw();
     for (let k = 0; k < birdsArray.length; k++) {
 
         if ((birdsArray[k].distance < birdsArray[k].radius + plane.radius)) {
             birdsArray[k].y += canvas.height + 100;
             ctx.drawImage(feather, 1989, 637, 663, 637, birdsArray[k].x - 70, birdsArray[k].y - canvas.height - 70, 70, 70);
             crowAudio.play();
-            ctx.drawImage(parachute, plane.x - 70, plane.y + 100, 50, 50);
-            plane.y = canvas.height - plane.radius / 3.5;
-            plane.width = plane.width / 2;
-            plane.height = plane.height / 2;
-            handleGameOver();
+            ctx.drawImage(parachute, plane.x - 70, plane.y + 10, 50, 50);
+            plane.y = canvas.height -15;
+            plane.width = plane.width/2;
+            plane.height = plane.height/2;
+                    handleGameOver();
         }
+
         birdsArray[k].update();
         birdsArray[k].draw();
     }
 }
 
 
+O
+//Шарики
+let balloonsArray = [];
 
 
+class Balloon {
+    constructor(image, x, y, spriteWidth, spriteHeight) {
+        this.x = x; // Math.random() * canvas.width;
+        this.y = y, //canvas.height + 100;
+            this.radius = 25;
+        this.speed = Math.random() * 4 + 1;
+        this.counted = false;
+        this.color = Math.floor(Math.random() * 6);
+        this.image = new Image();
+        this.image.src = image;
+
+        this.spriteWidth = spriteWidth;
+        this.spriteHeight = spriteHeight;
+    }
+    update() {
+        this.y -= this.speed;
+    }
+
+    draw() {
+        ctx.drawImage(this.image, 0, this.spriteHeight * this.color, this.spriteWidth,
+            this.spriteHeight, this.x - 40, this.y - 45, this.spriteWidth / 7, this.spriteHeight / 7)
+    }
+}
+
+
+function handleBalloons() {
+    if (gameFrame % 60 == 0) { //добавление элемента каждые 60 фреймов
+        balloonsArray.push(new Balloon('img/ballon-pop.png', Math.random() * canvas.width, canvas.height + 100, 500, 600));
+    }
+    for (let i = 0; i < balloonsArray.length; i++) {
+        balloonsArray[i].update();
+        balloonsArray[i].draw();
+
+        if (balloonsArray[i].y < 0 - balloonsArray[i].radius * 2) {
+            balloonsArray.splice(i, 1);
+            i--;
+            // столкновение с самолетом
+        } else if (Math.sqrt((plane.x - balloonsArray[i].x) ** 2 + (plane.y - balloonsArray[i].y) ** 2) < balloonsArray[i].radius + plane.radius) {
+            if (!balloonsArray[i].counted) {
+                score++;
+                balloonsArray[i].counted = true;
+                
+            }
+           
+            ctx.drawImage(balloon, 500, balloonsArray[i].color * 600, 500, 600, balloonsArray[i].x - 40, balloonsArray[i].y - 45,
+                balloonsArray[i].spriteWidth / 7, balloonsArray[i].spriteHeight / 7);
+            
+                ctx.drawImage(balloon, 1000, balloonsArray[i].color * 600, 500, 600, balloonsArray[i].x - 40, balloonsArray[i].y - 45,
+                    balloonsArray[i].spriteWidth / 7, balloonsArray[i].spriteHeight / 7);  
+             
+                
+            // const popHlop = new PopBalloon('img/ballon-pop.png',balloonsArray[i].x - 40, balloonsArray[i].y - 45);
+            // popHlop.draw();
+           
+            // popHlop.update();
+            popAudio1.play();
+            balloonsArray.splice(i, 1);
+            i--;
+          
+          
+        }
+    }
+}
+
+function checkBirdBallonCollision() {
+    for (let k = 0; k < birdsArray.length; k++) {
+        for (let i = 0; i < balloonsArray.length; i++) {
+            if (Math.sqrt((birdsArray[k].x - balloonsArray[i].x) ** 2 + (birdsArray[k].y - balloonsArray[i].y) ** 2) <
+                birdsArray[k].radius + balloonsArray[i].radius &&
+                Math.abs(birdsArray[k].y - balloonsArray[i].y) < 15) {
+                ctx.drawImage(balloon, 500, balloonsArray[i].color * 600, 500, 600, balloonsArray[i].x - 40,
+                    balloonsArray[i].y - 45, balloonsArray[i].spriteWidth / 7, balloonsArray[i].spriteHeight / 7);
+                balloonsArray.splice(i, 1);
+                i--;
+                popAudio2.play();
+            }
+        }
+    }
+}
+
+
+// class PopBalloon {
+//     constructor (image, x,y) {
+//         this.x =x;
+//         this.y=y;
+//         // this.frame = frame;
+//         // this.frameX = frameX;
+//         // this.frameY = frameY;
+//         this.spriteWidth = 500;
+//         this.spriteHeight = 600;
+//         this.image = new Image();
+//         this.image.src = image;
+//     }
+//     update() {
+//         this.y++;
+//     }
+
+//     draw() {
+//         ctx.drawImage(this.image, 100, this.spriteHeight, this.spriteWidth,
+//             this.spriteHeight, this.x , this.y, this.spriteWidth / 7, this.spriteHeight / 7)
+
+// }
+// }
+
+//разные животные
 class Animal {
     constructor(x, y, frame, frameX, frameY, image) {
         this.x = x;
@@ -270,16 +393,17 @@ class Horse {
         this.image.src = 'img/Horse_Run.png';
     }
     draw() {
-        ctx.drawImage(this.image, this.frameX * this.spriteWidth, 1, this.spriteWidth, this.spriteHeight,
+        ctx.drawImage(this.image, this.frameX * this.spriteWidth, 0, this.spriteWidth, this.spriteHeight,
             this.x, this.y, this.spriteWidth / 2, this.spriteHeight / 2);
     }
     update() {
         this.x -= this.speed;
+
         if (this.x < 0) {
             this.x = canvas.width + 200;
             this.speed = Math.random() * 0.8 + 0.35;
         }
-        //    this.frequency = Math.floor(this.speed*10) +2;
+
         if (gameFrame % 10 == 0) {
             this.frameX++;
             if (this.frameX >= 5) {
@@ -297,93 +421,6 @@ function handleHorse() {
     horse1.draw();
     // horse2.update();
     // horse2.draw();
-}
-
-//Шарики
-let balloonsArray = [];
-
-
-class Balloon {
-    constructor(image, x, y, spriteWidth, spriteHeight) {
-        this.x = x; // Math.random() * canvas.width;
-        this.y = y, //canvas.height + 100;
-            this.radius = 25;
-        this.speed = Math.random() * 4 + 1;
-        this.counted = false;
-        this.color = Math.floor(Math.random() * 6);
-        this.image = new Image();
-        this.image.src = image;
-
-        this.spriteWidth = spriteWidth;
-        this.spriteHeight = spriteHeight;
-    }
-    update() {
-        this.y -= this.speed;
-        //вычисление условия встречи с самолетом
-        // const dx = this.x - plane.x;
-        // const dy = this.y - plane.y;
-        // this.planeDistance = Math.sqrt(dx ** 2 + dy ** 2);
-
-
-    }
-    draw() {
-        ctx.drawImage(this.image, 0, this.spriteHeight * this.color, this.spriteWidth,
-            this.spriteHeight, this.x - 40, this.y - 45, this.spriteWidth / 7, this.spriteHeight / 7)
-    }
-}
-
-// class BalloonPop extends Balloon {
-//     constructor(image, x, y, frameX, frameY, spriteWidth, spriteHeight) {
-//         super(image, x, y, spriteWidth, spriteHeight);
-//         this.frameX = frameX;
-//         this.frameY = frameY;
-//     }
-//     draw() {
-//         ctx.drawImage(this.image, this.frameX * this.spriteWidth, this.frameY, this.spriteWidth, this.spriteHeight, this.x - 40, this.y - 45, this.spriteWidth / 7, this.spriteHeight / 7)
-//     }
-// }
-
-
-function handleBalloons() {
-    if (gameFrame % 60 == 0) { //добавление элемента каждые 60 фреймов
-        balloonsArray.push(new Balloon('img/ballon-pop.png', Math.random() * canvas.width, canvas.height + 100, 500, 600));
-    }
-    for (let i = 0; i < balloonsArray.length; i++) {
-        balloonsArray[i].update();
-        balloonsArray[i].draw();
-
-        if (balloonsArray[i].y < 0 - balloonsArray[i].radius * 2) {
-            balloonsArray.splice(i, 1);
-            i--;
-            // столкновение с самолетом
-        } else if (Math.sqrt((plane.x - balloonsArray[i].x) ** 2 + (plane.y - balloonsArray[i].y) ** 2) < balloonsArray[i].radius + plane.radius) {
-            if (!balloonsArray[i].counted) {
-                score++;
-                balloonsArray[i].counted = true;
-            }
-            ctx.drawImage(balloon, 500, balloonsArray[i].color * 600, 500, 600, balloonsArray[i].x - 40, balloonsArray[i].y - 45,
-                balloonsArray[i].spriteWidth / 7, balloonsArray[i].spriteHeight / 7);
-            balloonsArray.splice(i, 1);
-            i--;
-            popAudio1.play();
-        }
-    }
-}
-
-function checkBirdBallonCollision() {
-    for (let k = 0; k < birdsArray.length; k++) {
-        for (let i = 0; i < balloonsArray.length; i++) {
-            if (Math.sqrt((birdsArray[k].x - balloonsArray[i].x) ** 2 + (birdsArray[k].y - balloonsArray[i].y) ** 2) <
-                birdsArray[k].radius + balloonsArray[i].radius &&
-                Math.abs(birdsArray[k].y - balloonsArray[i].y) < 15) {
-                ctx.drawImage(balloon, 500, balloonsArray[i].color * 600, 500, 600, balloonsArray[i].x - 40,
-                    balloonsArray[i].y - 45, balloonsArray[i].spriteWidth / 7, balloonsArray[i].spriteHeight / 7);
-                balloonsArray.splice(i, 1);
-                i--;
-                popAudio2.play();
-            }
-        }
-    }
 }
 
 function drawBackground(background) {
@@ -404,12 +441,12 @@ function drawBackground(background) {
 function handleGameOver() {
 
 
-    ctx.font = "80px Verdana";
+    ctx.font = "70px Comic Sans MS";
     ctx.fillStyle = "red";
     ctx.textAlign = "center";
-    ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 2.3);
-    ctx.font = "50px Verdana";
-    ctx.fillText(`YOUR SCORE: ${score}`, canvas.width / 2, canvas.height / 1.5);
+    ctx.fillText("ИГРА ОКОНЧЕНА", canvas.width / 2, canvas.height / 2.3);
+    ctx.font = "60px Comic Sans MS";
+    ctx.fillText(`ВАШ СЧЕТ: ${score}`, canvas.width / 2, canvas.height / 1.8);
     gameOver = true;
     setInterval(() => {
         document.location.reload()
@@ -418,9 +455,9 @@ function handleGameOver() {
 
 function showScore() {
     ctx.drawImage(balloon, 0, 2400, 500, 600, canvas.width - 110, 10, 50, 60);
-    ctx.font = '25px Verdana';
+    ctx.font = '25px Comic Sans MS';
     ctx.fillStyle = 'black';
-    ctx.fillText(` ${score}`, canvas.width - 70, 50);
+    ctx.fillText(` ${score}`, canvas.width - 60, 50);
 
 }
 
@@ -439,6 +476,8 @@ function animate() {
     handleBirds();
     plane.update();
     plane.draw();
+    // music.play()
+
     // ctx.fillStyle = 'black';
     // ctx.fillText(`Ваш счет: ${score}`, canvas.width -300, 40);
     gameFrame++;
