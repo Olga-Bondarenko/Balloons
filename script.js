@@ -506,9 +506,9 @@ function handleGameOver() {
 }
 
 function showScore() {
-    ctx.drawImage(balloon, 0, 2400, 500, 600, canvas.width - 125, 10, 71, 86);
+    ctx.drawImage(balloon, 0, 2400, 500, 600, canvas.width - 140, 10, 71, 86);
     ctx.font = '30px Rubik';
-    ctx.fillText(` ${score}`, canvas.width - 65, 60);
+    ctx.fillText(` ${score}`, canvas.width - 80, 60);
 }
 
 
